@@ -149,3 +149,10 @@ aggregate(df_RFM[,2:4], by=list(members), mean)
 aggregate(df_RFM[,2:4], by=list(members), mean)
 ```
 
+```{r}
+#new test
+aggregate(df_RFM[,2:4], by=list(members), mean)
+
+```
+
+
