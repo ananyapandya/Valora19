@@ -95,6 +95,14 @@ hist(df_RFM$monitery)
 ```
 
 
+#Plots
+```{r}
+#Plotting the data R Vs F
+ggplot(data = df_RFM, mapping = aes(x=df_RFM$recency, y=df_RFM$monitery)) +
+       geom_point(size=3)
+```
+
+
 
 
 
