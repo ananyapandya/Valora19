@@ -155,4 +155,8 @@ aggregate(df_RFM[,2:4], by=list(members), mean)
 
 ```
 
+```{r}
+#Demo code for heirachircal clustering
+aggregate(df_RFM[,2:4], by=list(members), mean)
+```
 
