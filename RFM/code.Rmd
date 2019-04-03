@@ -74,7 +74,7 @@ kable(head(df_RFM))
 #Recency – How recently did the customer purchase?
 ```{r} 
 hist(df_RFM$recency)
-````
+```
 
 
 
