@@ -143,3 +143,9 @@ aggregate(df_RFM[,2:4], by=list(members), mean)
 
 ```
 
+```{r}
+#Ananya's k-means
+
+aggregate(df_RFM[,2:4], by=list(members), mean)
+```
+
