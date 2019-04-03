@@ -2,6 +2,9 @@
 title: "RFM"
 output: html_document
 ---
+```{r}
+
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -136,6 +139,7 @@ aggregate(df_RFM[,2:4], by=list(members), mean)
 ```
 
 ```{r}
-#Ananya's code
+#Adi k mean implementation
+
 ```
 
