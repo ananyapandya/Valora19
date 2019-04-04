@@ -158,19 +158,40 @@ fviz_cluster(pam.res2) # Visualize
 ```
 
 ```{r}
-#Ananya's k-means
+#New approach for segmentation
 
-aggregate(df_RFM[,2:4], by=list(members), mean)
+df_RFM$Recency_group <- cut(df_RFM$recency, 
+                              quantile(df_RFM$recency, 
+                              probs=seq(0,1,0.25)), 
+                              ordered_result=T, 
+                              include.lowest=T) # segment data into groups
+
+df_RFM$Recency_group <- factor(df_RFM$Recency_group, 
+                                 labels=c("very recent", "recent", "old", "oldest")) # rename levels
+
+
+df_RFM$Frequency_group <- cut(df_RFM$frequenci, 
+                              c(0,1,3,10,188), 
+                              ordered_result=T) #segment into four groups
+
+df_RFM$Frequency_group <- factor(df_RFM$Frequency_group, 
+                                 labels=c("very rare", "rare", "frequent", "very frequent"))
+
+
+df_RFM$mon_value_group <- cut(df_RFM$monitery, 
+                              quantile(df_RFM$monitery, probs=seq(0,1,0.25)), 
+                              ordered_result=T, include.lowest=T) #segment into groups
+
+df_RFM$mon_value_group <- factor(df_RFM$mon_value_group, 
+                                 labels=c("small", "medium", "large", "very large")) #rename levels
 ```
 
 ```{r}
-#new test
-aggregate(df_RFM[,2:4], by=list(members), mean)
+#Visualize the results
 
-```
-
-```{r}
-#Demo code for heirachircal clustering
-aggregate(df_RFM[,2:4], by=list(members), mean)
+ggplot(df_RFM, aes(Recency_group, Frequency_group)) +
+  geom_count() +
+  facet_grid(mon_value_group ~ .) +
+  labs(x="Recency", y="Frequency", title="RFM analysis") 
 ```
 
