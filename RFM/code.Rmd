@@ -197,3 +197,9 @@ ggplot(df_RFM, aes(Recency_group, Frequency_group)) +
   labs(x="Recency", y="Frequency", title="RFM analysis") 
 ```
 
+```{r}
+save(df_RFM, file = "data.RData")
+```
+
+
+
