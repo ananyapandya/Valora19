@@ -151,11 +151,12 @@ aggregate(df_RFM[,2:4], by=list(members), mean)
 
 pam.res <- pam(df_RFM, 3) #PAM clustering method
 pam.res2 <- pam(df_RFM, 6) #PAM clustering method
+pam.res3 <- pam(df_RFM2, 5)
 
 
 fviz_cluster(pam.res) # Visualize
 fviz_cluster(pam.res2) # Visualize
-
+fviz_cluster(pam.res3)
 ```
 
 ```{r}
