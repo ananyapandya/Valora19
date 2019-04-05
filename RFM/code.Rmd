@@ -3,7 +3,7 @@ title: "RFM"
 output: html_document
 ---
 ```{r}
-
+rm(ls=list())
 ```
 
 ```{r setup, include=FALSE}
@@ -30,6 +30,10 @@ df_data <- fread('../data.csv')
 glimpse(df_data)
 
 ```
+
+#Data cleaning
+1. handle outliers
+2. handle missing values
 
 ```{r}
 ### Data Cleaning
@@ -97,7 +101,7 @@ hist(df_RFM$frequenci, breaks = 50)
 ```{r} 
 hist(df_RFM$monitery, breaks = 50)
 ```
-#Becouse the data is realy skewed, we use log scale to normalize
+#Because the data is realy skewed, we use log scale to normalize
 ```{r}
 df_RFM$monitery <- log(df_RFM$monitery)
 hist(df_RFM$monitery)
@@ -112,52 +116,6 @@ ggplot(data = df_RFM, mapping = aes(x=df_RFM$recency, y=df_RFM$monitery)) +
 ```
 
 
-
-
-
-
-### Clustering
-```{r}
-df_RFM2 <- df_RFM
-row.names(df_RFM2) <- df_RFM2$CustomerID
-df_RFM2$CustomerID <- NULL
-
-df_RFM2 <- scale(df_RFM2)
-summary(df_RFM2)
-```
-
-```{r}
-d <- dist(df_RFM2)
-c <- hclust(d, method = 'ward.D2')
-
-plot(c)
-```
-
-#### Cut
-```{r}
-members <- cutree(c,k = 8)
-
-members[1:5]
-table(members)
-
-aggregate(df_RFM[,2:4], by=list(members), mean)
-
-```
-
-```{r}
-#Adi k mean implementation
-#partitioning clustering
-########################
-
-pam.res <- pam(df_RFM, 3) #PAM clustering method
-pam.res2 <- pam(df_RFM, 6) #PAM clustering method
-pam.res3 <- pam(df_RFM2, 5)
-
-
-fviz_cluster(pam.res) # Visualize
-fviz_cluster(pam.res2) # Visualize
-fviz_cluster(pam.res3)
-```
 
 ```{r}
 #New approach for segmentation
@@ -196,6 +154,58 @@ ggplot(df_RFM, aes(Recency_group, Frequency_group)) +
   facet_grid(mon_value_group ~ .) +
   labs(x="Recency", y="Frequency", title="RFM analysis") 
 ```
+
+
+
+### Clustering
+```{r}
+#scale dataframe
+df_RFM2 <- df_RFM
+row.names(df_RFM2) <- df_RFM2$CustomerID
+df_RFM2$CustomerID <- NULL
+
+df_RFM2 <- scale(df_RFM2)
+summary(df_RFM2)
+```
+
+```{r}
+#hierarchiacal clustering , ward
+d <- dist(df_RFM2)
+c <- hclust(d, method = 'ward.D2')
+
+plot(c)
+
+#### Cut
+members <- cutree(c,k = 8)
+
+members[1:5]
+table(members)
+
+aggregate(df_RFM[,2:4], by=list(members), mean)
+
+```
+
+
+
+```{r}
+#partitioning clustering, k pam (k means)
+
+pam.res <- pam(df_RFM, 3) #PAM clustering method
+pam.res2 <- pam(df_RFM, 6) #PAM clustering method
+pam.res3 <- pam(df_RFM2, 5)
+
+
+fviz_cluster(pam.res) # Visualize
+fviz_cluster(pam.res2) # Visualize
+fviz_cluster(pam.res3)
+```
+
+#cluster analysis
+
+
+#prediction?
+
+#visualization
 
 ```{r}
 save(df_RFM, file = "data.RData")
