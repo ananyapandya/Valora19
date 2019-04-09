@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(data.table)
 library(dplyr)
 library(ggplot2)
+library(tidyverse)
 #library(stringr)
 #library(DT)
 library(tidyr)
@@ -21,6 +22,7 @@ library("NbClust")
 library("cluster")
 library("factoextra")
 library("magrittr")
+library(shiny)
 
 ```
 
@@ -206,6 +208,36 @@ fviz_cluster(pam.res3)
 #prediction?
 
 #visualization
+
+```{r}
+
+p <- plot_ly(z = df_RFM, type = "heatmap")
+
+```
+
+```{r}
+p=ggplot(df_RFM, aes(x=df_RFM$frequenci, y=df_RFM$monitery, color=Recency_group, shape=Recency_group)) + 
+    geom_point(size=6, alpha=0.6)
+ggplotly(p)
+```
+
+
+```{r}
+mytext=paste("Frequency = ", df_RFM$frequenci, "\n" , "Monetary = ", df_RFM$monitery, "\n", "Row Number: ",rownames(df_RFM),  sep="")    
+pp=plotly_build(p)   
+style( pp, text=mytext, hoverinfo = "text", traces = c(1, 2, 3) )
+pp %>% offline(height = 600)
+```
+
+
+```{r}
+
+# left
+p1 <- plot_ly(df_RFM, x = ~df_RFM$frequenci, y = ~df_RFM$monitery , type="scatter", mode = "markers", 
+        marker=list( size=20 , opacity=0.5), color = ~df_RFM$recency)
+p1 %>% offline(height = 600)
+```
+
 
 ```{r}
 save(df_RFM, file = "data.RData")
