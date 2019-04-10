@@ -102,8 +102,8 @@ hist(df_RFM$monitery, breaks = 50)
 ```
 #Because the data is realy skewed, we use log scale to normalize
 ```{r}
-df_RFM$monitery <- log(df_RFM$monitery)
-hist(df_RFM$monitery)
+#df_RFM$monitery <- log(df_RFM$monitery)
+hist(df_RFM$log_monitery)
 ```
 
 
@@ -214,7 +214,7 @@ p
 ```
 
 ```{r}
-p=ggplot(df_RFM, aes(x=df_RFM$frequenci, y=df_RFM$monitery, color=Recency_group, shape=Recency_group)) + 
+p=ggplot(df_RFM, aes(x=df_RFM$frequenci, y=df_RFM$log_monitery, color=Recency_group, shape=Recency_group)) + 
     geom_point(size=6, alpha=0.6)
 ggplotly(p)
 ```
@@ -240,7 +240,12 @@ p1 %>% offline(height = 600)
 
 
 ```{r}
+library(factoextra)
+df_RFM$log_recency <- log(df_RFM$recency)
+df_RFM$log_frequency <- log(df_RFM$frequenci)
+df_RFM$log_monitery <- log(df_RFM$monitery)
 
+write.csv(df_RFM, file = "rfm.csv")
 ```
 
 ```{r}
