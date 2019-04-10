@@ -1,0 +1,42 @@
+---
+title: "Ggplotly"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+#library(stringr)
+#library(DT)
+library(tidyr)
+library(knitr)
+library(rmarkdown)
+library(plotly)
+library("NbClust")
+library("cluster")
+library("factoextra")
+library("magrittr")
+library(shiny)
+
+```
+
+
+```{r}
+p=ggplot(df_RFM, aes(x=df_RFM$frequenci, y=df_RFM$log_monitery, color=Recency_group)) + 
+    geom_point(size=6, alpha=0.6)
+ggplotly(p)
+p %>% offline(height = 600)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

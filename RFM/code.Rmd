@@ -214,9 +214,13 @@ p
 ```
 
 ```{r}
-p=ggplot(df_RFM, aes(x=df_RFM$frequenci, y=df_RFM$log_monitery, color=Recency_group, shape=Recency_group)) + 
+library("htmlwidgets")
+p=ggplot(df_RFM, aes(x=df_RFM$frequenci, y=df_RFM$log_monitery, color=Recency_group)) + 
     geom_point(size=6, alpha=0.6)
 ggplotly(p)
+p %>% offline(height = 600)
+
+saveWidget(p,file = "inter.html")
 ```
 
 
@@ -225,6 +229,8 @@ mytext=paste("Frequency = ", df_RFM$frequenci, "\n" , "Monetary = ", df_RFM$moni
 pp=plotly_build(p)   
 style( pp, text=mytext, hoverinfo = "text", traces = c(1, 2, 3) )
 pp %>% offline(height = 600)
+htmlwidgets::saveWidget(as_widget(p), "index.html")
+
 ```
 
 
