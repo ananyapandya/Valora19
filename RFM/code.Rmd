@@ -160,7 +160,7 @@ ggplot(df_RFM, aes(Recency_group, Frequency_group)) +
 ```{r}
 #scale dataframe
 df_RFM2 <- df_RFM
-row.names(df_RFM2) <- df_RFM2$CustomerID
+#row.names(df_RFM2) <- df_RFM2$CustomerID
 df_RFM2$CustomerID <- NULL
 
 df_RFM2 <- scale(df_RFM2,scale = TRUE)
@@ -188,6 +188,7 @@ aggregate(df_RFM[,2:4], by=list(members), mean)
 
 ```{r}
 #partitioning clustering, k pam (k means)
+set.seed(123)
 
 pam.res <- pam(df_RFM, 3) #PAM clustering method
 pam.res2 <- pam(df_RFM, 6) #PAM clustering method
@@ -197,7 +198,32 @@ pam.res3 <- pam(df_RFM2, 5)
 fviz_cluster(pam.res) # Visualize
 fviz_cluster(pam.res2) # Visualize
 fviz_cluster(pam.res3)
+
+
+#fviz_cluster(pam.res3, data = df_RFM2, ellipse.type = "convex", palette = "jco", repel = TRUE, ggtheme = theme_minimal())
+
+
 ```
+
+```{r}
+library("Rtsne")
+gower_dist <- daisy(df_RFM2, metric = "gower", type = list(logratio = 3))
+pam_fit <- pam(gower_dist, diss = TRUE, k = 7)
+Customer_Data <- cbind(df_RFM2, Group = pam_fit$clustering)
+tsne_obj <- Rtsne(gower_dist, is_distance = TRUE)
+tsne_data <- tsne_obj$Y %>%
+  data.frame() %>%
+  setNames(c("X", "Y")) %>%
+  mutate(cluster = factor(pam_fit$clustering))
+
+ggplot(aes(x = X, y = Y), data = tsne_data) + geom_point(aes(color = cluster)) + ggtitle("PAM") + theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+
+```
+
+
 
 #cluster analysis
 
