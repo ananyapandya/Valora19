@@ -2,9 +2,6 @@
 title: "RFM"
 output: html_document
 ---
-```{r}
-rm(ls=list())
-```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -166,7 +163,7 @@ df_RFM2 <- df_RFM
 row.names(df_RFM2) <- df_RFM2$CustomerID
 df_RFM2$CustomerID <- NULL
 
-df_RFM2 <- scale(df_RFM2)
+df_RFM2 <- scale(df_RFM2,scale = TRUE)
 summary(df_RFM2)
 ```
 
@@ -212,6 +209,7 @@ fviz_cluster(pam.res3)
 ```{r}
 
 p <- plot_ly(z = df_RFM, type = "heatmap")
+p
 
 ```
 
@@ -238,6 +236,12 @@ p1 <- plot_ly(df_RFM, x = ~df_RFM$frequenci, y = ~df_RFM$monitery , type="scatte
 p1 %>% offline(height = 600)
 ```
 
+
+
+
+```{r}
+
+```
 
 ```{r}
 save(df_RFM, file = "data.RData")
