@@ -25,7 +25,8 @@ library(shiny)
 
 ```{r}
 ##Load Dataset
-df_data <- fread('../data.csv')
+df_data <- fread('../data.csv') 
+
 glimpse(df_data)
 
 ```
@@ -75,16 +76,17 @@ df_RFM <- df_data %>%
   summarise(recency=as.numeric(as.Date("2012-01-01")-max(InvoiceDate)),
             frequenci=n_distinct(InvoiceNo), monitery= sum(total_dolar)/n_distinct(InvoiceNo)) 
 
-summary(df_RFM)
+#summary(df_RFM)
 
-kable(head(df_RFM))
+#kable(head(df_RFM))
 ```
+
+
 #### Recency
 #Recency – How recently did the customer purchase?
 ```{r} 
 hist(df_RFM$recency)
 ```
-
 
 
 #### Frequency
@@ -94,16 +96,16 @@ hist(df_RFM$frequenci, breaks = 50)
 ```
 
 
-
 #### Monetary
 #Monetary Value – How much do they spend?
 ```{r} 
 hist(df_RFM$monitery, breaks = 50)
 ```
+
 #Because the data is realy skewed, we use log scale to normalize
 ```{r}
-#df_RFM$monitery <- log(df_RFM$monitery)
-hist(df_RFM$log_monitery)
+df_RFM$monitery <- log(df_RFM$monitery)
+#hist(df_RFM$log_monitery)
 ```
 
 
@@ -157,15 +159,52 @@ ggplot(df_RFM, aes(Recency_group, Frequency_group)) +
 
 
 ### Clustering
+
+##we first have to scale the R,F,M values
 ```{r}
 #scale dataframe
-df_RFM2 <- df_RFM
-#row.names(df_RFM2) <- df_RFM2$CustomerID
+df_RFM2 <- df_RFM[1:4]
+row.names(df_RFM2) <- df_RFM2$CustomerID
 df_RFM2$CustomerID <- NULL
 
 df_RFM2 <- scale(df_RFM2,scale = TRUE)
 summary(df_RFM2)
 ```
+
+
+```{r}
+##get dist measurement
+res.dist <- get_dist(df_RFM2, stand = TRUE, method = "pearson")
+
+#fviz_dist(res.dist, 
+#   gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+```
+
+
+
+```{r}
+#partitioning clustering, k pam (k means)
+set.seed(123)
+
+fviz_nbclust(df_RFM2, kmeans, method = "gap_stat")#Determining the optimal number of clusters: 
+
+pam.res <- pam(df_RFM, 3) #PAM clustering method
+pam.res2 <- pam(df_RFM, 6) #PAM clustering method
+pam.res3 <- pam(df_RFM2, 5)
+
+
+fviz_cluster(pam.res) # Visualize
+fviz_cluster(pam.res2) # Visualize
+fviz_cluster(pam.res3)
+
+
+#fviz_cluster(pam.res3, data = df_RFM2, ellipse.type = "convex", palette = "jco", repel = TRUE, ggtheme = theme_minimal())
+
+
+```
+
+
+
 
 ```{r}
 #hierarchiacal clustering , ward
@@ -186,24 +225,7 @@ aggregate(df_RFM[,2:4], by=list(members), mean)
 
 
 
-```{r}
-#partitioning clustering, k pam (k means)
-set.seed(123)
 
-pam.res <- pam(df_RFM, 3) #PAM clustering method
-pam.res2 <- pam(df_RFM, 6) #PAM clustering method
-pam.res3 <- pam(df_RFM2, 5)
-
-
-fviz_cluster(pam.res) # Visualize
-fviz_cluster(pam.res2) # Visualize
-fviz_cluster(pam.res3)
-
-
-#fviz_cluster(pam.res3, data = df_RFM2, ellipse.type = "convex", palette = "jco", repel = TRUE, ggtheme = theme_minimal())
-
-
-```
 
 ```{r}
 library("Rtsne")
