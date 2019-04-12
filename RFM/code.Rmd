@@ -47,6 +47,11 @@ df_data <- df_data %>%
 ```
 
 ```{r}
+###delete outliers!!!
+```
+
+
+```{r}
 ### Recode variables
 #We should do some recoding and convert character variables to factors.
 
@@ -188,22 +193,34 @@ set.seed(123)
 
 fviz_nbclust(df_RFM2, kmeans, method = "gap_stat")#Determining the optimal number of clusters: 
 
-pam.res <- pam(df_RFM, 3) #PAM clustering method
-pam.res2 <- pam(df_RFM, 6) #PAM clustering method
-pam.res3 <- pam(df_RFM2, 5)
+kmeans.res <- kmeans(df_RFM2, 3, nstart = 25)#kmeans with k = 3
+head(kmeans.res$cluster)#to see the clusters
 
+fviz_cluster(kmeans.res, data = df_RFM2,
+             ellipse.type = "convex",
+             palette = "jco",
+             ggtheme = theme_minimal())#visualize kmeans
 
-fviz_cluster(pam.res) # Visualize
-fviz_cluster(pam.res2) # Visualize
-fviz_cluster(pam.res3)
-
-
-#fviz_cluster(pam.res3, data = df_RFM2, ellipse.type = "convex", palette = "jco", repel = TRUE, ggtheme = theme_minimal())
-
+pam.res <- pam(df_RFM2, 3) #kmeanoid clustering method - less sensitve to outliers
+fviz_cluster(pam.res)
 
 ```
 
+```{r}
+#other method to determine optimal number of clusters -----> takes very long!!!!!
+#res.nbclust <- df_RFM2 %>%
+#          NbClust(distance = "euclidean",
+#          min.nc = 2, max.nc = 10, 
+#          method = "complete", index ="all")
 
+```
+
+```{r}
+#fuzzy clustering method: c means
+
+#fanny(x, k, metric = "euclidean", stand = FALSE)#template version
+fanny.rers <- fanny(df_RFM2, 3, metric = "euclidean", stand = TRUE)
+```
 
 
 ```{r}
