@@ -229,10 +229,17 @@ fanny.rers <- fanny(df_RFM2, 3, metric = "euclidean", stand = TRUE)
 set.seed(123)
 dbscan.res <- fpc::dbscan(df_RFM2, eps = 0.15, MinPts = 5)
 head(dbscan.res$cluster)
+print.dbscan(dbscan.res)#zero is outlier
 
-fviz_cluster(dbscan.res, data = df_RFM2, stand = FALSE, #to visualize
+fviz_cluster(dbscan.res, data = df_RFM2, stand = FALSE, #to visualize, with black is outlier
              ellipse = FALSE, show.clust.cent = FALSE,
              geom = "point",palette = "jco", ggtheme = theme_classic())
+
+
+dbscan::kNNdistplot(df_RFM2, k =  5)#evaluate together with abline command
+abline(h = 0.15, lty = 2)#to find best epsilon
+
+
 ```
 
 
