@@ -20,6 +20,8 @@ library("cluster")
 library("factoextra")
 library("magrittr")
 library(shiny)
+library(fpc)
+library(dbscan)
 
 ```
 
@@ -221,6 +223,18 @@ fviz_cluster(pam.res)
 #fanny(x, k, metric = "euclidean", stand = FALSE)#template version
 fanny.rers <- fanny(df_RFM2, 3, metric = "euclidean", stand = TRUE)
 ```
+
+```{r}
+#DBSCAN method
+set.seed(123)
+dbscan.res <- fpc::dbscan(df_RFM2, eps = 0.15, MinPts = 5)
+head(dbscan.res$cluster)
+
+fviz_cluster(dbscan.res, data = df_RFM2, stand = FALSE, #to visualize
+             ellipse = FALSE, show.clust.cent = FALSE,
+             geom = "point",palette = "jco", ggtheme = theme_classic())
+```
+
 
 
 ```{r}
