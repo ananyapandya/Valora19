@@ -23,7 +23,7 @@ library("magrittr")
 library(shiny)
 library(fpc)
 library(dbscan)
-
+library("NbClust")
 ```
 
 ```{r}
@@ -165,7 +165,7 @@ ggplot(df_RFM, aes(Recency_group, Frequency_group)) +
 ```
 
 
-
+#-----------------------------------------------
 # Clustering
 #-----------------------------------------------
 
@@ -197,11 +197,31 @@ fviz_pca_ind(prcomp(df_RFM2), title = "PCA(principal compontent analysis) - RFM2
 #2.) Alternative hypothesis: the data set D is not uniformly distributed (i.e., contains meaningful clusters)
 
 # Compute Hopkins statistic for df_RFM2 dataset
-hop .res <- get_clust_tendency(df_RFM2, n = nrow(df_RFM2)-1, graph = FALSE)
+hop.res <- get_clust_tendency(df_RFM2, n = nrow(df_RFM2)-1, graph = FALSE)
 hop.res$hopkins_stat
 
 
 ```
+##Optimal number of clusters
+
+```{r}
+#Average silhouette method
+#Average silhouette method computes the average silhouette of observations for different values of k. The optimal number of clusters k is the #one that maximize the average silhouette over a range of possible values for k (Kaufman and Rousseeuw 1990).
+silhoutte.res <- fviz_nbclust(df_RFM2, kmeans, method = "silhouette")+ labs(subtitle = "Silhouette method")
+
+
+#Gap statistic
+#The gap statistic has been published by R. Tibshirani et al. The approach can be applied to any clustering method.The gap statistic compares the total within intra-cluster variation for different values of k with their expected values under null reference distribution of the data. The estimate of the optimal clusters will be value that maximize the gap statistic.
+
+set.seed(123)
+gapstat.res <- fviz_nbclust(df_RFM2, kmeans, nstart = 25,  method = "gap_stat", nboot = 500)+ labs(subtitle = "Gap statistic method")
+
+#NbClust() function: 30 indices for choosing the best number of clusters
+
+nbclust.res <- NbClust(data = df_RFM2, diss = NULL, distance = "euclidean", min.nc = 2, max.nc = 15, method = kmeans)
+
+```
+
 
 
 
