@@ -24,6 +24,7 @@ library(shiny)
 library(fpc)
 library(dbscan)
 library("NbClust")
+library(clValid)
 ```
 
 ```{r}
@@ -222,21 +223,15 @@ nbclust.res <- NbClust(data = df_RFM2, diss = NULL, distance = "euclidean", min.
 
 ```
 
-
-
-
+##clustering methods:
 ```{r}
 ##get dist measurement
 res.dist <- get_dist(df_RFM2, stand = TRUE, method = "pearson")
 
-#fviz_dist(res.dist, 
-#   gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
 ```
 
-
-
 ```{r}
-#partitioning clustering, k menoid, k means and clara
+#partitioning clustering: k menoid, k means and clara
 set.seed(123)
 
 fviz_nbclust(df_RFM2, kmeans, method = "gap_stat")#Determining the optimal number of clusters: 
@@ -263,19 +258,19 @@ ddf_RFM <- cbind(df_RFM2, cluster = clara.res$cluster)#to implement the clusters
 ```
 
 ```{r}
-#other method to determine optimal number of clusters -----> takes very long!!!!!
-#res.nbclust <- df_RFM2 %>%
-#          NbClust(distance = "euclidean",
-#          min.nc = 2, max.nc = 10, 
-#          method = "complete", index ="all")
+#hierarchiacal clustering , ward
+hc.res <- eclust(df_RFM2, "hclust", k = 3, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
 
+# Visualize dendrograms
+fviz_dend(hc.res, show_labels = FALSE,
+         palette = "jco", as.ggplot = TRUE)
 ```
 
 ```{r}
 #fuzzy clustering method: c means
 
 #fanny(x, k, metric = "euclidean", stand = FALSE)#template version
-fanny.rers <- fanny(df_RFM2, 3, metric = "euclidean", stand = TRUE)
+fanny.res <- fanny(df_RFM2, 3, metric = "euclidean", stand = TRUE)
 ```
 
 ```{r}
@@ -296,15 +291,51 @@ abline(h = 0.15, lty = 2)#to find best epsilon
 
 ```
 
+#Cluster analysis
+```{r}
+#Silhouette plot
+#A value of S close to 1 indicates that the object is well clustered. In the other words, the object i is similar to the other objects in its group.
+fviz_silhouette(hc.res)
+
+
+#It can be seen that several samples, in cluster 2, have a negative silhouette coefficient. This means that they are not in the right cluster. We can find the name of these samples and determine the clusters they are closer (neighbor cluster), as follow:
+
+sil <- hc.res$silinfo$widths[, 1:3]# Silhouette width of observation
+
+neg_sil_index <- which(sil[, 'sil_width'] < 0)
+sil[neg_sil_index, , drop = FALSE]# Objects with negative silhouette
+
+
+
+#Dun Index
+
+clust_stats <- cluster.stats(dist(df_RFM2),  kmeans.res$cluster)# Statistics for k-means clustering
+clust_stats$dun# Dun index
+
+clust_stats$corrected.rand# Corrected Rand index
+```
+
+#Comparing clustering algorithms
+```{r}
+library(clValid)
+# Compute clValid
+clmethods <- c("hierarchical","kmeans","pam","fanny","clara")
+intern <- clValid(df_RFM2, nClust = 2:6, clMethods = clmethods, validation = "internal")
+# Summary
+summary(intern)
+
+# Stability measures
+stab <- clValid(df, nClust = 2:6, clMethods = clmethods, validation = "stability")
+# Display only optimal Scores
+optimalScores(stab)
+```
+
+#------------------------------------------------
+
+
 
 
 ```{r}
-#hierarchiacal clustering , ward
-d <- dist(df_RFM2)
-c <- hclust(d, method = 'ward.D2')
-
-plot(c)
-
 #### Cut
 members <- cutree(c,k = 8)
 
@@ -333,13 +364,9 @@ tsne_data <- tsne_obj$Y %>%
 ggplot(aes(x = X, y = Y), data = tsne_data) + geom_point(aes(color = cluster)) + ggtitle("PAM") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
-```{r}
-
-```
 
 
 
-#cluster analysis
 
 
 #prediction?
