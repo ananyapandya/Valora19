@@ -190,7 +190,7 @@ res.dist <- get_dist(df_RFM2, stand = TRUE, method = "pearson")
 
 
 ```{r}
-#partitioning clustering, k pam (k means)
+#partitioning clustering, k menoid, k means and clara
 set.seed(123)
 
 fviz_nbclust(df_RFM2, kmeans, method = "gap_stat")#Determining the optimal number of clusters: 
@@ -205,6 +205,14 @@ fviz_cluster(kmeans.res, data = df_RFM2,
 
 pam.res <- pam(df_RFM2, 3) #kmeanoid clustering method - less sensitve to outliers
 fviz_cluster(pam.res)
+
+#CLARA: better for large datasets; using sampling approach
+clara.res <- clara(df_RFM2, 3, metric = "euclidean", stand = FALSE, samples = 50, pamLike = FALSE)
+clara.res$clustering
+
+
+
+ddf_RFM <- cbind(df_RFM2, cluster = clara.res$cluster)#to implement the clusters
 
 ```
 
