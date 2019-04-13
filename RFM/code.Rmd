@@ -17,6 +17,7 @@ library(rmarkdown)
 library(plotly)
 library("NbClust")
 library("cluster")
+library("clustertend")
 library("factoextra")
 library("magrittr")
 library(shiny)
@@ -165,9 +166,10 @@ ggplot(df_RFM, aes(Recency_group, Frequency_group)) +
 
 
 
-### Clustering
+# Clustering
+#-----------------------------------------------
 
-##we first have to scale the R,F,M values
+##We first have to scale the R,F,M values
 ```{r}
 #scale dataframe
 df_RFM2 <- df_RFM[1:4]
@@ -177,6 +179,30 @@ df_RFM2$CustomerID <- NULL
 df_RFM2 <- scale(df_RFM2,scale = TRUE)
 summary(df_RFM2)
 ```
+
+##Assessing cluster tendency
+```{r}
+#Data preparation
+##################
+fviz_pca_ind(prcomp(df_RFM2), title = "PCA(principal compontent analysis) - RFM2",                    # Plot faithful data set
+             palette = "jco", geom = "point", ggtheme = theme_classic(), legend = "bottom")
+
+```
+
+```{r}
+#Hopkins statistics
+#A value for H higher than 0.75 indicates a clustering tendency at the 90% confidence level.
+#The null and the alternative hypotheses are defined as follow: 
+#1.) Null hypothesis: the data set D is uniformly distributed (i.e., no meaningful clusters) 
+#2.) Alternative hypothesis: the data set D is not uniformly distributed (i.e., contains meaningful clusters)
+
+# Compute Hopkins statistic for df_RFM2 dataset
+hop .res <- get_clust_tendency(df_RFM2, n = nrow(df_RFM2)-1, graph = FALSE)
+hop.res$hopkins_stat
+
+
+```
+
 
 
 ```{r}
