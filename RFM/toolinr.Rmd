@@ -1,0 +1,69 @@
+---
+title: "Marketer Tool"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(knitr)
+library(dplyr)
+```
+
+```{r}
+data <- fread('../data.csv')
+```
+
+```{r}
+### Data Cleaning
+df_data <- df_data %>% 
+  mutate(Quantity = replace(Quantity, Quantity<=0, NA),
+         UnitPrice = replace(UnitPrice, UnitPrice<=0, NA))
+
+df_data <- df_data %>%
+  drop_na()
+```
+
+```{r}
+mycolors <- c("blue","#FFC125","darkgreen","darkorange")
+```
+
+Interactive Data Visualisation
+============================================
+
+Row
+--------------------------------------------
+###Car Failure Analysis
+
+```{r}
+valueBox(paste("Failure"),
+         color = warning)
+```
+
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+
