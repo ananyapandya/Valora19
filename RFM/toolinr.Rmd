@@ -2,6 +2,7 @@
 title: "Marketer Tool"
 output: 
   flexdashboard::flex_dashboard:
+  theme: Valora case
     orientation: rows
     vertical_layout: fill
 ---
@@ -10,6 +11,14 @@ output:
 library(flexdashboard)
 library(knitr)
 library(dplyr)
+library(highcharter)
+library(openintro)
+library(plotly)
+library(ggplot2)
+library(rpivotTable)
+library(DT)
+library(data.table)
+
 ```
 
 ```{r}
@@ -39,7 +48,7 @@ Row
 
 ```{r}
 valueBox(paste("Failure"),
-         color = warning)
+         color = "warning")
 ```
 
 
