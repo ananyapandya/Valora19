@@ -8,6 +8,7 @@ library(plotly)
 library(stringr)
 library(lubridate)
 library(plyr)
+library(factoextra)
 
 #Import dataset from Kaggle
 
@@ -59,8 +60,33 @@ RFM3$Recency<-as.numeric(difftime(endDate,RFM3$Last_date,units="days"))
 RFM1 <- merge(RFM2,RFM3, by = "CustomerID")
 summary(RFM1)
 
-#Visualizations
+#Rearrange the columns
+RFM1 <- RFM1[, c(1, 9, 5, 4, 2,3,6,7,8)]
 
+
+
+#scale dataframe
+RFM_scale <- RFM1[1:4]
+row.names(RFM_scale) <- RFM_scale$CustomerID
+RFM_scale$CustomerID <- NULL
+
+RFM_scale <- scale(RFM_scale,scale = TRUE)
+summary(RFM_scale)
+
+#Different Methods to get optimal number of clusters
+#Elbow Method
+fviz_nbclust(RFM_scale, kmeans, method = "wss") +
+  geom_vline(xintercept = 4, linetype = 2)+
+  labs(subtitle = "Elbow method")
+
+# Silhouette method
+fviz_nbclust(RFM_scale, kmeans, method = "silhouette")+
+  labs(subtitle = "Silhouette method")
+
+#Gap Statistic
+set.seed(123)
+fviz_nbclust(RFM_scale, kmeans, nstart = 25,  method = "gap_stat", nboot = 50)+
+  labs(subtitle = "Gap statistic method")
 
 
 
