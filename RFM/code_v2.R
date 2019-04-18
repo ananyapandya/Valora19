@@ -50,6 +50,28 @@ RFM <- subset(eRetail, Invoice_date > startDate & Invoice_date < endDate )
 length(unique(RFM$CustomerID))
 
 
+
+#PRE-RFM Analysis
+
+eRetail_UK <- subset(eRetail, eRetail$Country=="United Kingdom", select = c(CustomerID,InvoiceNo,StockCode,Description,Amount,Quantity,UnitPrice,Invoice_date,Invoice_time,InvoiceDate) )
+RFM_Uk <- subset(RFM1, RFM1$Country=="United Kingdom", select = c(CustomerID,sumAmount,sumQuantity,Monetary,M,Frequency,Fq,Recency,R) )
+eRFM_uk<- subset(RFM, RFM$Country=="United Kingdom", select = c(CustomerID,Invoice_date,Amount) )
+
+
+UK1<-ddply(eRetail_UK, .(unique(Description)), summarize, sumAmount=sum(Amount), sumQuantity=sum(Quantity))
+names(UK1) [1] <-"product"
+UK1$product<-as.character(UK1$product)
+head(UK1[order(-UK1$sumQuantity),])
+
+UK2 <- subset(eRetail_UK, Description%in%c("PACK OF 12 RED APPLE TISSUES","HANGING CLEAR MINI BOTTLE","PACK OF 12 VINTAGE LEAF TISSUES ","CHERRY CROCHET FOOD COVER","GLASS CHALICE GREEN  LARGE "), select = c(Description,Invoice_date,Invoice_time,Quantity))
+
+UK2$Invoice_month<-month(UK2$Invoice_date)
+UK2$Decription<-as.character(UK2$Description)
+ggplot(UK2, aes(x=Invoice_month, y= Quantity))+ facet_wrap(~Description, ncol=2) + 
+  geom_bar(stat="identity") + 
+  labs(title = "Sales by month", x = "Month", y = "Sales Volume")
+
+
 #RFM Analysis
 
 RFM2 <-ddply(RFM, .(CustomerID),summarize,sumAmount=sum(Amount),sumQuantity=sum(Quantity),Monetary=max(Amount),Frequency=length(unique(InvoiceDate)))
@@ -62,6 +84,13 @@ summary(RFM1)
 
 #Rearrange the columns
 RFM1 <- RFM1[, c(1, 9, 5, 4, 2,3,6,7,8)]
+
+
+
+#Products vs Sales
+
+ggplot(RFM1, aes(x = Country, y = Fq)) + geom_jitter() +
+  labs(title = "Purchase Frequency by Country", x = "Country", y = "Frequency")+coord_flip()+th 
 
 
 
@@ -88,6 +117,13 @@ set.seed(123)
 fviz_nbclust(RFM_scale, kmeans, nstart = 25,  method = "gap_stat", nboot = 50)+
   labs(subtitle = "Gap statistic method")
 
+NbClust(data = NULL, diss = NULL, distance = "euclidean",
+        min.nc = 2, max.nc = 15, method = NULL)
 
 
+#Applying k-means with k = 4
+
+kmeans.res <- kmeans(RFM_scale, 4)
+
+plot(RFM1[c("Frequency", "Monetary")], col = kmeans.res$cluster)
 
