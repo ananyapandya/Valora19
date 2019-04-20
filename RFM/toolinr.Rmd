@@ -5,6 +5,7 @@ output:
     orientation: rows
     vertical_layout: fill
     social: ["menu"]
+    source_code: embed
 ---
 
 ```{r setup, include=FALSE}
@@ -19,7 +20,16 @@ library(rpivotTable)
 library(DT)
 library(data.table)
 library(tidyr)
-
+library(ggplot2)
+library(clValid)
+library(dbscan)
+library("NbClust")
+library(fpc)
+library("magrittr")
+library(shiny)
+library("cluster")
+library("clustertend")
+library("factoextra")
 ```
 
 ```{r}
@@ -92,27 +102,138 @@ valueBox(paste("Sales"),
 ```
 
 ###Number of Customers
-```{r include=FALSE}
-tmp <- aggregate(.~CustomerID, df_data, FUN=head, 1)
-```
 
 ```{r}
-valueBox(nrow(tmp),
+tmp <- aggregate(.~CustomerID, df_data, FUN=head, 1)
+valueBox(round(nrow(tmp),digits = 2),
          icon = "fa-user")
 ```
 
 
 ###Average Sale per Customer
-```{r include=FALSE}
-df_data$sales = df_data$UnitPrice*df_data$Quantity
-tmp <- df_data %>% group_by(CustomerID) %>% summarise(meansales = mean(sales))
-
-```
 
 ```{r}
-valueBox(mean(tmp$meansales),
+df_data$sales = df_data$UnitPrice*df_data$Quantity
+tmp <- df_data %>% group_by(CustomerID) %>% summarise(meansales = mean(sales))
+tmp <- round(mean(tmp$meansales), digits = 2)
+valueBox(tmp,
          icon = "fa-user")
 ```
+
+###Average Quantity per Purchase
+```{r}
+tmp <- df_data %>% group_by(CustomerID, InvoiceDate) %>% summarise(number = n())
+tmp <- round(mean(tmp$number), digits = 2)
+valueBox(tmp,
+         icon = "fa-user")
+```
+
+
+RFM
+==========================================
+
+Row
+-------------------------------------------
+
+#### Recency
+```{r} 
+hist(df_RFM$recency)
+```
+
+
+#### Frequency
+```{r} 
+hist(df_RFM$frequenci, breaks = 50)
+```
+
+
+#### Monetary Value
+```{r} 
+df_RFM$monitery <- log(df_RFM$monitery)
+hist(df_RFM$monitery, breaks = 50)
+```
+
+Row
+---------------------------------------
+
+###Recency vs Frequency vs monetary value
+```{r }
+ggplot(df_RFM, aes(x=df_RFM$recency, y=df_RFM$frequenci, size=df_RFM$monitery)) + geom_point(alpha=0.2)
+
+#plot1 <- plot_ly(df_RFM, x = ~df_RFM$recency, y = ~df_RFM$frequenci, type="scatter", text = paste("Clarity: ", df_RFM$monitery), mode = "markers", color = ~df_RFM$monitery, size = ~df_RFM$monitery)
+#plot1
+```
+
+
+Clustering Analysis
+==============================================
+
+Row
+-------------------------------------------
+
+###Optimal number of clusters
+```{r}
+set.seed(123)
+#gapstat.res <- fviz_nbclust(df_RFM2, kmeans, nstart = 25,  method = "gap_stat", nboot = 500)+ labs(subtitle = "Gap statistic method")
+#gapstat.res
+#nbclust.res <- NbClust(data = df_RFM2, diss = NULL, distance = "euclidean", min.nc = 2, max.nc = 15, method = kmeans)
+#nbclust.res
+```
+
+
+###Comparing clustering algorithms
+```{r}
+#clmethods <- c("hierarchical","kmeans","pam","fanny","clara")
+#intern <- clValid(df_RFM2, nClust = 2:6, clMethods = clmethods, validation = "internal")
+#summary(intern)
+```
+
+
+###DSBSCAN
+```{r}
+#DBSCAN method
+set.seed(123)
+dbscan.res <- fpc::dbscan(df_RFM2, eps = 0.15, MinPts = 5)
+head(dbscan.res$cluster)
+print.dbscan(dbscan.res)#zero is outlier
+
+fviz_cluster(dbscan.res, data = df_RFM2, stand = FALSE, #to visualize, with black is outlier
+             ellipse = FALSE, show.clust.cent = FALSE,
+             geom = "point",palette = "jco", ggtheme = theme_classic())
+```
+
+
+Row
+----------------------------------------
+
+###Cluster plot
+
+```{r}
+
+clara.res <- clara(df_RFM2, 3, metric = "euclidean", stand = FALSE, samples = 50, pamLike = FALSE)#CLARA as example
+
+#ddf_RFM <- cbind(df_RFM2, cluster = clara.res$cluster)#to implement the clusters
+
+fviz_cluster(clara.res , data = df_RFM2,
+             ellipse.type = "convex",
+             palette = "jco",
+             ggtheme = theme_minimal())#visualize clara
+```
+
+
+Recommendations
+=========================================
+
+
+
+
+
+Authors
+========================================
+
+
+
+
 
 
 
