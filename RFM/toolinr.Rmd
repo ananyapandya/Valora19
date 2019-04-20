@@ -2,9 +2,9 @@
 title: "Marketer Tool"
 output: 
   flexdashboard::flex_dashboard:
-  theme: Valora case
     orientation: rows
     vertical_layout: fill
+    social: ["menu"]
 ---
 
 ```{r setup, include=FALSE}
@@ -18,16 +18,18 @@ library(ggplot2)
 library(rpivotTable)
 library(DT)
 library(data.table)
+library(tidyr)
 
 ```
 
 ```{r}
+#Data
 data <- fread('../data.csv')
 ```
 
 ```{r}
 ### Data Cleaning
-df_data <- df_data %>% 
+df_data <- data %>% 
   mutate(Quantity = replace(Quantity, Quantity<=0, NA),
          UnitPrice = replace(UnitPrice, UnitPrice<=0, NA))
 
@@ -39,40 +41,78 @@ df_data <- df_data %>%
 mycolors <- c("blue","#FFC125","darkgreen","darkorange")
 ```
 
+```{r include=FALSE}
+### Recode variables
+#We should do some recoding and convert character variables to factors.
+
+df_data <- df_data %>% 
+  mutate(InvoiceNo=as.factor(InvoiceNo), StockCode=as.factor(StockCode), 
+         InvoiceDate=as.Date(InvoiceDate, '%m/%d/%Y %H:%M'), CustomerID=as.factor(CustomerID), 
+         Country=as.factor(Country))
+
+df_data <- df_data %>% 
+  mutate(total_dolar = Quantity*UnitPrice)
+
+glimpse(df_data)
+```
+
+```{r include=FALSE}
+#RFM
+df_RFM <- df_data %>% 
+  group_by(CustomerID) %>% 
+  summarise(recency=as.numeric(as.Date("2012-01-01")-max(InvoiceDate)),
+            frequenci=n_distinct(InvoiceNo), monitery= sum(total_dolar)/n_distinct(InvoiceNo)) 
+
+```
+
+```{r include=FALSE}
+#scale dataframe
+df_RFM2 <- df_RFM[1:4]
+row.names(df_RFM2) <- df_RFM2$CustomerID
+df_RFM2$CustomerID <- NULL
+
+df_RFM2 <- scale(df_RFM2,scale = TRUE)
+summary(df_RFM2)
+```
+
+
+
+
 Interactive Data Visualisation
 ============================================
 
 Row
 --------------------------------------------
-###Car Failure Analysis
+
+###Customer Analysis
 
 ```{r}
-valueBox(paste("Failure"),
+valueBox(paste("Sales"),
          color = "warning")
 ```
 
-
-Column {data-width=650}
------------------------------------------------------------------------
-
-### Chart A
+###Number of Customers
+```{r include=FALSE}
+tmp <- aggregate(.~CustomerID, df_data, FUN=head, 1)
+```
 
 ```{r}
+valueBox(nrow(tmp),
+         icon = "fa-user")
+```
+
+
+###Average Sale per Customer
+```{r include=FALSE}
+df_data$sales = df_data$UnitPrice*df_data$Quantity
+tmp <- df_data %>% group_by(CustomerID) %>% summarise(meansales = mean(sales))
 
 ```
 
-Column {data-width=350}
------------------------------------------------------------------------
-
-### Chart B
-
 ```{r}
-
+valueBox(mean(tmp$meansales),
+         icon = "fa-user")
 ```
 
-### Chart C
 
-```{r}
-
-```
 
